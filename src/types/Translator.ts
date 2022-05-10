@@ -150,6 +150,10 @@ export interface TranslatorOptions {
 	 * All requests will send through this proxy server and this server will modify headers
 	 */
 	corsProxy?: CorsProxy;
+	
+	proxyHost?: string;
+	
+	proxyPort?: number;
 }
 
 /**
