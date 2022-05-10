@@ -2,6 +2,7 @@ import axios from 'axios';
 import { stringify } from 'query-string';
 import xpath from 'xpath';
 import { DOMParser } from '@xmldom/xmldom';
+import { SocksProxyAgent } from 'socks-proxy-agent';
 
 import { langCode, langCodeWithAuto, BaseTranslator } from '../../types/Translator';
 import { getToken } from './token';
@@ -90,11 +91,13 @@ export class GoogleTranslator extends AbstractGoogleTranslator {
 			};
 
 			const url = apiPath + '?' + stringify(data);
-
+			const proxyOptions = `socks5://${this.options.proxyHost}:${this.options.proxyPort}`;
+			const httpsAgent = new SocksProxyAgent(proxyOptions);
 			return axios
 				.get(this.wrapUrlToCorsProxy(url), {
 					withCredentials: false,
 					headers: this.options.headers,
+					httpsAgent
 				})
 				.then((rsp) => rsp.data)
 				.then((rsp) => {
@@ -140,7 +143,8 @@ export class GoogleTranslator extends AbstractGoogleTranslator {
 			const body = preparedText
 				.map((text) => `&q=${encodeURIComponent(text)}`)
 				.join('');
-
+			const proxyOptions = `socks5://${this.options.proxyHost}:${this.options.proxyPort}`;
+			const httpsAgent = new SocksProxyAgent(proxyOptions);
 			return axios({
 				url: this.wrapUrlToCorsProxy(url),
 				method: 'POST',
@@ -150,6 +154,7 @@ export class GoogleTranslator extends AbstractGoogleTranslator {
 					...this.options.headers,
 				},
 				data: body,
+				httpsAgent
 			})
 				.then((rsp) => rsp.data)
 				.then((rawResp) => {
@@ -255,7 +260,8 @@ export class GoogleTranslatorTokenFree extends AbstractGoogleTranslator {
 		};
 
 		const url = apiPath + '?' + stringify(data);
-
+		const proxyOptions = `socks5://${this.options.proxyHost}:${this.options.proxyPort}`;
+		const httpsAgent = new SocksProxyAgent(proxyOptions);
 		return axios({
 			url: this.wrapUrlToCorsProxy(url),
 			method: 'GET',
@@ -264,6 +270,7 @@ export class GoogleTranslatorTokenFree extends AbstractGoogleTranslator {
 				'Content-Type': 'application/x-www-form-urlencoded',
 				...this.options.headers,
 			},
+			httpsAgent
 		})
 			.then((rsp) => rsp.data)
 			.then((rawResp) => {
